@@ -72,6 +72,11 @@ class Promocodes
     protected ?CarbonInterface $expiredAt = null;
 
     /**
+     * @var CarbonInterface|null
+     */
+    protected ?CarbonInterface $activeAt = null;
+
+    /**
      * @var Model|null
      */
     protected ?Model $user = null;
@@ -195,6 +200,12 @@ class Promocodes
         return $this;
     }
 
+    public function activeAt(CarbonInterface $activeAt): static
+    {
+        $this->activeAt = $activeAt;
+        return $this;
+    }
+
     /**
      * @return PromocodeContract|null
      */
@@ -269,6 +280,7 @@ class Promocodes
             'multi_use' => $this->multiUse,
             'details' => $this->details,
             'expired_at' => $this->expiredAt,
+            'active_at' => $this->activeAt,
         ]));
     }
 

@@ -24,6 +24,7 @@ class CreatePromocodesTable extends Migration
             $table->boolean('multi_use')->default(false);
             $table->json('details')->nullable();
             $table->timestamp('expired_at')->nullable();
+            $table->timestamp('active_at')->nullable();
             $table->timestamps();
         });
     }

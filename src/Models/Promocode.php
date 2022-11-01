@@ -20,7 +20,7 @@ class Promocode extends Model implements PromocodeContract
      * @var string[]
      */
     protected $fillable = [
-        'user_id', 'code', 'usages_left', 'bound_to_user', 'multi_use', 'details', 'expired_at',
+        'user_id', 'code', 'usages_left', 'bound_to_user', 'multi_use', 'details', 'expired_at','active_at',
     ];
 
     /**
@@ -29,6 +29,7 @@ class Promocode extends Model implements PromocodeContract
      * @var array
      */
     protected $casts = [
+        'active_at' => 'datetime',
         'expired_at' => 'datetime',
         'usages_left' => 'integer',
         'bound_to_user' => 'boolean',
