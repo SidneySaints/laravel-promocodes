@@ -13,7 +13,7 @@ if (!function_exists('applyPromocode')) {
      * @param Model|null $user
      * @return PromocodeContract|null
      */
-    function applyPomocode(string $code, ?Model $user = null): ?PromocodeContract
+    function applyPomocode(string $code, ?Model $user = null): null|PromocodeContract|\Zorb\Promocodes\Models\PromocodeUser
     {
         $promocodes = Promocodes::code($code);
 

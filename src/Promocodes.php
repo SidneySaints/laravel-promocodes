@@ -13,6 +13,7 @@ use Zorb\Promocodes\Contracts\PromocodeUserContract;
 use Zorb\Promocodes\Events\GuestAppliedPromocode;
 use Zorb\Promocodes\Events\UserAppliedPromocode;
 use Zorb\Promocodes\Contracts\PromocodeContract;
+use Zorb\Promocodes\Models\PromocodeUser;
 use Zorb\Promocodes\Traits\AppliesPromocode;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Database\Eloquent\Model;
@@ -209,8 +210,12 @@ class Promocodes
     /**
      * @return PromocodeContract|null
      */
-    public function apply(): ?PromocodeContract
+    public function apply(): null|PromocodeContract|PromocodeUser
     {
+
+        $models = config('promocodes.models');
+        $promocodeForeignId = $models['promocodes']['foreign_id'];
+        $promocodeUserModel = app(PromocodeUserContract::class);
         if (!$this->promocode) {
             throw new PromocodeDoesNotExistException($this->code);
         }
@@ -240,7 +245,11 @@ class Promocodes
                 throw new PromocodeAlreadyUsedByUserException($this->user, $this->code);
             }
 
-            $this->user->appliedPromocodes()->attach($this->promocode, ['session_id' => Session::getId()]);
+            $attributes = [];
+            $attributes[$promocodeForeignId] = $this->promocode->id;
+            $attributes['session_id'] = Session::getId();
+            $attributes[config('promocodes.models.users.foreign_id')] = $this->user->id;
+            $promocode = $promocodeUserModel->forceCreate($attributes);
 
             if ($this->promocode->bound_to_user && $this->promocode->user_id === null) {
                 $this->promocode->user()->associate($this->user);
@@ -249,22 +258,20 @@ class Promocodes
 
             event(new UserAppliedPromocode($this->promocode, $this->user));
         } else {
-            $models = config('promocodes.models');
-            $promocodeForeignId = $models['promocodes']['foreign_id'];
 
             $attributes = [];
             $attributes[$promocodeForeignId] = $this->promocode->id;
             $attributes['session_id'] = Session::getId();
-
-            $promocodeUserModel = app(PromocodeUserContract::class);
-            $promocodeUserModel->forceCreate($attributes);
+            $promocode = $promocodeUserModel->forceCreate($attributes);
 
             event(new GuestAppliedPromocode($this->promocode));
         }
 
-        $this->promocode->decrement('usages_left');
+        if(!$this->promocode->isUnlimited()){
+            $this->promocode->decrement('usages_left');
+        }
 
-        return $this->promocode;
+        return $promocode;
     }
 
     /**

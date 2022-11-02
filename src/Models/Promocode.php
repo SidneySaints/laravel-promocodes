@@ -2,6 +2,7 @@
 
 namespace Zorb\Promocodes\Models;
 
+use App\Models\Participant;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -134,7 +135,8 @@ class Promocode extends Model implements PromocodeContract
      */
     public function appliedByUser(Model $user): bool
     {
-        return $this->users()->where(DB::raw('users.id'), $user->id)->exists();
+        $table = config('promocodes.models.users.table_name');
+        return $this->users()->where(DB::raw(sprintf('%s.id',$table)), $user->id)->exists();
     }
 
     /**
