@@ -25,4 +25,8 @@ class PromocodeUser extends Pivot
 
         $this->setTable(config('promocodes.models.pivot.table_name'));
     }
+
+    public function promocode(){
+        return $this->belongsTo(Promocode::class);
+    }
 }
